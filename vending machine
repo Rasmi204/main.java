@@ -1,0 +1,111 @@
+import java.util.*;
+class Product {
+    private String name;
+    private double price;
+
+    public Product(String name, double price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    public String getName() { return name; }
+    public double getPrice() { return price; }
+}
+abstract class Payment {
+    public abstract boolean processPayment(double amount);
+}
+class CashPayment extends Payment {
+    @Override
+    public boolean processPayment(double amount) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter cash amount: ₹");
+        double paid = sc.nextDouble();
+        if (paid >= amount) {
+            System.out.println("Payment successful! Change: ₹" + (paid - amount));
+            return true;
+        } else {
+            System.out.println("Insufficient cash!");
+            return false;
+        }
+    }
+}
+class CardPayment extends Payment {
+    @Override
+    public boolean processPayment(double amount) {
+        System.out.println("Processing card payment of ₹" + amount + "...");
+        System.out.println("Payment successful!");
+        return true;
+    }
+}
+class VendingMachine {
+    private List<Product> products = new ArrayList<>();
+
+    public void addProduct(Product product) {
+        products.add(product);
+    }
+
+    public void showProducts() {
+        System.out.println("\nAvailable Products:");
+        for (int i = 0; i < products.size(); i++) {
+            Product p = products.get(i);
+            System.out.println((i + 1) + ". " + p.getName() + " - ₹" + p.getPrice());
+        }
+    }
+
+    public Product selectProduct(int choice) {
+        if (choice > 0 && choice <= products.size()) {
+            return products.get(choice - 1);
+        }
+        return null;
+    }
+}
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        VendingMachine vm = new VendingMachine();
+        vm.addProduct(new Product("Coke", 30));
+        vm.addProduct(new Product("Pepsi", 25));
+        vm.addProduct(new Product("Water", 20));
+        vm.addProduct(new Product("Juice", 40));
+        vm.addProduct(new Product("Tea", 15));
+
+        boolean continueBuying = true;
+
+        while (continueBuying) {
+            vm.showProducts();
+            System.out.print("\nEnter product number: ");
+            int choice = sc.nextInt();
+            Product selected = vm.selectProduct(choice);
+
+            if (selected != null) {
+                System.out.println("You selected: " + selected.getName());
+                System.out.println("\nSelect Payment Method:");
+                System.out.println("1. Cash");
+                System.out.println("2. Card");
+                int payChoice = sc.nextInt();
+
+                Payment payment;
+                if (payChoice == 1) {
+                    payment = new CashPayment();
+                } else {
+                    payment = new CardPayment();
+                }
+                if (payment.processPayment(selected.getPrice())) {
+                    System.out.println("Enjoy your " + selected.getName() + "!");
+                } else {
+                    System.out.println("Transaction failed!");
+                }
+
+            } else {
+                System.out.println("Invalid selection!");
+            }
+            System.out.print("\nDo you want to buy another item? (yes/no): ");
+            String again = sc.next().toLowerCase();
+            if (!again.equals("yes")) {
+                continueBuying = false;
+                System.out.println("Thank you for using the vending machine!");
+            }
+        }
+    }
+}
+
